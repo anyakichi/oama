@@ -23,6 +23,7 @@ data Opts = Opts
 
 data Command
   = Oauth2 String
+  | Id String
   | ShowCreds String
   | Renew String
   | Authorize String String Bool
@@ -63,12 +64,17 @@ programOptions =
           <> help "Configuration file"
       )
     <*> switch (long "debug" <> help "Print HTTP traffic to stdout")
-    <*> hsubparser (oauth2 <> showcreds <> renew <> authorize <> printEnv <> printTemplate)
+    <*> hsubparser (oauth2 <> showId <> showcreds <> renew <> authorize <> printEnv <> printTemplate)
 
 oauth2 :: Mod CommandFields Command
 oauth2 = command "access" (info oauth2Options (progDesc "Get the access token for email"))
 oauth2Options :: Parser Command
 oauth2Options = Oauth2 <$> strArgument (metavar "<email>" <> help "Email address")
+
+showId :: Mod CommandFields Command
+showId = command "id" (info showIdOptions (progDesc "Get the id token for email"))
+showIdOptions :: Parser Command
+showIdOptions = Id <$> strArgument (metavar "<email>" <> help "Email address")
 
 showcreds :: Mod CommandFields Command
 showcreds = command "show" (info showcredsOptions (progDesc "Show current credentials for email"))

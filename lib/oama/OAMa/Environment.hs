@@ -160,6 +160,7 @@ data AuthRecord = AuthRecord
   , scope :: String
   , refresh_token :: Maybe String
   , access_token :: String
+  , id_token :: Maybe String
   , token_type :: String
   , exp_date :: Maybe String
   , expires_in :: NominalDiffTime

@@ -10,6 +10,7 @@
 module OAMa.Authorization (
   authorizeEmail,
   getEmailAuth,
+  getId,
   forceRenew,
   showCreds,
 ) where
@@ -122,6 +123,13 @@ getEmailAuth env email_ = do
       Right rec -> putStrLn $ access_token rec
       Left errmsg -> error $ "getEmailAuth:\n" ++ errmsg
 
+getId :: Environment -> EmailAddress -> IO ()
+getId env email_ = do
+  getEmailAuth' env email_
+    >>= \case
+      Right rec -> maybe (return ()) putStrLn rec.id_token
+      Left errmsg -> error $ "getId:\n" ++ errmsg
+
 getEmailAuth' :: Environment -> EmailAddress -> IO (Either String AuthRecord)
 getEmailAuth' env email_ = do
   authrec <- getAuthRecord env email_
@@ -138,6 +146,7 @@ getEmailAuth' env email_ = do
                 authrec' =
                   authrec
                     { access_token = newat.access_token
+                    , id_token = newat.id_token
                     , expires_in = newat.expires_in
                     , exp_date = Just expDate
                     , -- despite of google's doc refresh_token is not returned!
@@ -232,6 +241,7 @@ forceRenew env email_ = do
             authrec' =
               authrec
                 { access_token = access_token newat
+                , id_token = id_token newat
                 , expires_in = expires_in newat
                 , exp_date = Just expDate
                 , -- despite of google's doc refresh_token is not returned!
@@ -254,6 +264,7 @@ showCreds env email_ = do
         printf "scope: %s\n" rec.scope
         printf "refresh_token: %s\n" (fromMaybe "error - missing refresh_token" rec.refresh_token)
         printf "access_token: %s\n" rec.access_token
+        printf "id_token: %s\n" (fromMaybe "error - missing id_token" rec.id_token)
         printf "token_type: %s\n" rec.token_type
         printf "exp_date: %s\n" (fromMaybe "error - missing exp_date" rec.exp_date)
       -- printf "expires_in: %s\n" $ show rec.expires_in
